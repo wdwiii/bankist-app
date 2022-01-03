@@ -4,7 +4,7 @@
 const account1 = {
   owner: 'Willie Whitfield',
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
-  interestRate: 1.2, // %
+  interestRate: 1.2,
   pin: 1111,
 };
 
@@ -16,7 +16,7 @@ const account2 = {
 };
 
 const account3 = {
-  owner: 'Bruno Mars',
+  owner: 'Michael Bakari Jordan',
   movements: [200, -200, 340, -300, -20, 50, 400, -460],
   interestRate: 0.7,
   pin: 3333,
@@ -81,3 +81,47 @@ const displayMovements = function (movements) {
 };
 
 displayMovements(account1.movements);
+
+//Function Notes
+//1. Take the name of the account holder and conver to lower case
+//2. Split the string into an array, using the space (' ') as the divider
+//3. Map through the array, storing the first index value of each string
+//4. Join the results of the map method with an empty string
+
+// const createUserName = function (user) {
+//   const userName = user
+//     .toLowerCase()
+//     .split(' ')
+//     .map(name => name.at(0))
+//     .join('');
+
+//   console.log(userName);
+//   return userName;
+// };
+
+//For each account call the createUserName function and pass account.owner as a parameter.
+//This is the equiv to passing account1.owner ('Willie Whitfield)
+//accounts.forEach(account => createUserName(account.owner));
+
+//It is a better practice to rewrite the function to receive all of the data as a parameter to improve reusability
+
+//1. Function now expects an array of strings as a parameter
+//2. Loop through the users in the accounts array using forEach method
+//3. Create a user name that targets the value from user.owner (string containing the name of the user)
+//4. Store user name as a property of the user object
+
+const createUserNames = function (accountsArr) {
+  accountsArr.forEach(user => {
+    user.userName = user.owner
+      .toLowerCase()
+      .split(' ')
+      .map(name => name.at(0))
+      .join('');
+
+    console.log(user.userName);
+  });
+};
+
+createUserNames(accounts);
+
+console.log(accounts);
