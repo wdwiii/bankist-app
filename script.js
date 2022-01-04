@@ -57,7 +57,7 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-//Function Notes
+//Function Notes - displayMovements
 //** Function will expect an array of number values as a parameter
 //1. Clear out inner html of the movements container
 //2. Loop through movements array
@@ -82,29 +82,13 @@ const displayMovements = function (movements) {
 
 displayMovements(account1.movements);
 
-//Function Notes
-//1. Take the name of the account holder and conver to lower case
-//2. Split the string into an array, using the space (' ') as the divider
-//3. Map through the array, storing the first index value of each string
-//4. Join the results of the map method with an empty string
-
-// const createUserName = function (user) {
-//   const userName = user
-//     .toLowerCase()
-//     .split(' ')
-//     .map(name => name.at(0))
-//     .join('');
-
-//   console.log(userName);
-//   return userName;
-// };
-
 //For each account call the createUserName function and pass account.owner as a parameter.
 //This is the equiv to passing account1.owner ('Willie Whitfield)
 //accounts.forEach(account => createUserName(account.owner));
 
 //It is a better practice to rewrite the function to receive all of the data as a parameter to improve reusability
 
+//Function Notes - createUserNames
 //1. Function now expects an array of strings as a parameter
 //2. Loop through the users in the accounts array using forEach method
 //3. Create a user name that targets the value from user.owner (string containing the name of the user)
@@ -117,11 +101,21 @@ const createUserNames = function (accountsArr) {
       .split(' ')
       .map(name => name.at(0))
       .join('');
-
-    console.log(user.userName);
   });
 };
 
 createUserNames(accounts);
 
-console.log(accounts);
+//Function Notes - displayBalance
+//1. Reduce and store the values from account.movements
+//2. Use query selector to targe .balance__value
+//3. Set .balance__value textContent to the reduced value
+const displayBalance = account => {
+  const currentBalance = account.movements.reduce(
+    (balance, movement) => balance + movement,
+    0
+  );
+  labelBalance.textContent = `$${currentBalance}`;
+};
+
+displayBalance(account1);
