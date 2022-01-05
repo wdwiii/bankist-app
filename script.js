@@ -73,7 +73,9 @@ const displayMovements = function (movements) {
         <div class="movements__type movements__type--${transactionType}">${
       i + 1
     } ${transactionType}</div>
-        <div class="movements__value">$${Math.abs(movement)}</div>
+        <div class="movements__value">${movement < 0 ? '- ' : ''}$${Math.abs(
+      movement
+    )}</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -119,3 +121,28 @@ const displayBalance = account => {
 };
 
 displayBalance(account1);
+
+//Function Notes - displaySummary
+//1a. Target account.movement and filter array
+//1b. Store positive values in deposits var
+//1c. Store negative values in withdrawals var
+//2. Set labelSumIn text content to deposits
+//3. Set labelSumOut text content to withdrawals
+
+const displaySummary = account => {
+  const deposits = account.movements.filter(movement => movement > 0);
+  const withdrawals = account.movements.filter(movement => movement < 0);
+  const interest = deposits
+    .map(deposit => deposit * 0.012)
+    .filter(deposits => deposits > +1);
+  const calcSum = movements => movements.reduce((tot, mov) => tot + mov);
+  labelSumIn.textContent = `$${calcSum(deposits)}`;
+  labelSumOut.textContent = `$${Math.abs(calcSum(withdrawals))}`;
+  labelSumInterest.textContent = `$${calcSum(interest)}`;
+  console.log(interest);
+};
+
+displaySummary(account1);
+
+//Chaining a lot of methods together can cause performnce issues if working with large arrays
+//It is a bad practice to chain methods that mutate the original array. For example, the splice or reverse method.
