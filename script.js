@@ -3,7 +3,7 @@
 // Data
 const account1 = {
   owner: 'Willie Whitfield',
-  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  movements: [200, 450, -400, 3000, -650, -130, 70, 1300, -345, -20, 1768],
   interestRate: 1.2,
   pin: 1111,
 };
@@ -82,8 +82,6 @@ const displayMovements = function (movements) {
   });
 };
 
-displayMovements(account1.movements);
-
 //For each account call the createUserName function and pass account.owner as a parameter.
 //This is the equiv to passing account1.owner ('Willie Whitfield)
 //accounts.forEach(account => createUserName(account.owner));
@@ -120,8 +118,6 @@ const displayBalance = account => {
   labelBalance.textContent = `$${currentBalance}`;
 };
 
-displayBalance(account1);
-
 //Function Notes - displaySummary
 //1a. Target account.movement and filter array
 //1b. Store positive values in deposits var
@@ -133,16 +129,52 @@ const displaySummary = account => {
   const deposits = account.movements.filter(movement => movement > 0);
   const withdrawals = account.movements.filter(movement => movement < 0);
   const interest = deposits
-    .map(deposit => deposit * 0.012)
+    .map(deposit => deposit * (account.interestRate / 100))
     .filter(deposits => deposits > +1);
-  const calcSum = movements => movements.reduce((tot, mov) => tot + mov);
+  const calcSum = movements => movements.reduce((tot, mov) => tot + mov, 0);
   labelSumIn.textContent = `$${calcSum(deposits)}`;
   labelSumOut.textContent = `$${Math.abs(calcSum(withdrawals))}`;
   labelSumInterest.textContent = `$${calcSum(interest)}`;
-  console.log(interest);
 };
-
-displaySummary(account1);
 
 //Chaining a lot of methods together can cause performnce issues if working with large arrays
 //It is a bad practice to chain methods that mutate the original array. For example, the splice or reverse method.
+
+//The currentAmount variable needs to be declared in the global scope so it can be access inside of other functions
+let currentAccount;
+
+//EVENT LISTENERS
+
+//On the click of the login button current account will equal the account that has a user name equal to the value of the userName input
+//If the inputUserPin value (number format) is equal to the the current account's pin property, then the login is successful
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+  currentAccount = accounts.find(
+    acc => acc.userName === inputLoginUsername.value
+  );
+  //Optional chaining can be used to prevent error message if non-existent username is entere
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    //Order of events
+    //Disply UI & Welcome Message
+    containerApp.style.opacity = '100';
+    labelWelcome.textContent = `Welcome, ${currentAccount.owner
+      .split(' ')
+      .at(0)}`;
+
+    //Diplay & Calculate Balance
+    displayBalance(currentAccount);
+
+    //Diplay & Calculate Summary
+    displaySummary(currentAccount);
+
+    //Diplay Movements
+    displayMovements(currentAccount.movements);
+
+    //Clear Login Credientials
+    inputLoginUsername.value = inputLoginPin.value = ``;
+    //Because the assignment operator works from right to left, we can reset the value ot both input fields in one line
+    inputLoginPin.blur(); //The blur method removes focus from the input field
+
+    //Start/Restart Lougout Timer
+  }
+});
