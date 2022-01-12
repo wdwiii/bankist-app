@@ -116,6 +116,7 @@ const displayBalance = account => {
     0
   );
   labelBalance.textContent = `$${currentBalance}`;
+  account.balance = currentBalance;
 };
 
 //Function Notes - displaySummary
@@ -139,8 +140,13 @@ const displaySummary = account => {
 
 //Chaining a lot of methods together can cause performnce issues if working with large arrays
 //It is a bad practice to chain methods that mutate the original array. For example, the splice or reverse method.
+const updateUI = account => {
+  displaySummary(account);
+  displayBalance(account);
+  displayMovements(account.movements);
+};
 
-//The currentAmount variable needs to be declared in the global scope so it can be access inside of other functions
+//The currentAmount variable needs to be declared in the global scope so it can be accessed inside of other functions
 let currentAccount;
 
 //EVENT LISTENERS
@@ -161,14 +167,7 @@ btnLogin.addEventListener('click', function (e) {
       .split(' ')
       .at(0)}`;
 
-    //Diplay & Calculate Balance
-    displayBalance(currentAccount);
-
-    //Diplay & Calculate Summary
-    displaySummary(currentAccount);
-
-    //Diplay Movements
-    displayMovements(currentAccount.movements);
+    updateUI(currentAccount);
 
     //Clear Login Credientials
     inputLoginUsername.value = inputLoginPin.value = ``;
@@ -176,5 +175,38 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginPin.blur(); //The blur method removes focus from the input field
 
     //Start/Restart Lougout Timer
+  }
+});
+
+//User Transfers Money
+//Add event listener to btnTransfer
+//Add negative movement to current user
+//Add positive movement to recipient
+let recepientAccount;
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  let transferAmount = Number(inputTransferAmount.value);
+  //currentAccount = account1;
+  recepientAccount = accounts.find(
+    acct => acct.userName === inputTransferTo.value
+  );
+  //Run Tests
+  //Does recipient account exist?
+  //Is the transfer amount greater than 0
+  //Is transfer amount less than or equal to the balance?
+  //Is the transfer recipient different from the current account?
+  if (
+    recepientAccount &&
+    transferAmount > 0 &&
+    transferAmount <= currentAccount.balance &&
+    recepientAccount?.userName !== currentAccount?.userName
+  ) {
+    currentAccount.movements.push(-transferAmount);
+    recepientAccount.movements.push(transferAmount);
+    updateUI(currentAccount);
+    inputTransferTo.value = inputTransferAmount.value = ``;
+    inputTransferAmount.blur();
+  } else {
+    alert(`The transfer is invalid and cannot be completed`);
   }
 });
