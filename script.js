@@ -210,3 +210,44 @@ btnTransfer.addEventListener('click', function (e) {
     alert(`The transfer is invalid and cannot be completed`);
   }
 });
+
+//Run Tests to close account
+//Is the username entered the same as the current account username?
+//Is the pin for the entered username correct?
+
+//Function notes
+//1. Check if credentials are correct
+//2. Prompt to confirm deletion
+//3. Remove currentAccount from data
+//4. Hide UI
+btnClose.addEventListener('click', e => {
+  e.preventDefault();
+  if (
+    inputCloseUsername.value === currentAccount.userName &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const confirmDelete = prompt(
+      'Are you sure you would like to delete this account? This action cannot be undone. Yes or No?'
+    );
+
+    if (confirmDelete === null) {
+      inputCloseUsername.value = inputClosePin.value = '';
+      alert('Deletion cancelled: You must enter Yes or No');
+      return;
+    } else if (confirmDelete.toLowerCase() === 'yes') {
+      const deletedAccountIndex = accounts.findIndex(
+        account => account === currentAccount
+      );
+      accounts.splice(deletedAccountIndex, 1);
+      containerApp.style.opacity = '0';
+      labelWelcome.textContent = `Log in to get started`;
+      alert(`Account successfully deleted`);
+      console.log(accounts);
+    } else {
+      inputCloseUsername.value = inputClosePin.value = '';
+      return;
+    }
+  } else alert(`Invalid username and/or pin.`);
+  inputCloseUsername.value = inputClosePin.value = '';
+  inputClosePin.blur();
+});
