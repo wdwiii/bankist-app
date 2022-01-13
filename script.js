@@ -251,3 +251,30 @@ btnClose.addEventListener('click', e => {
   inputCloseUsername.value = inputClosePin.value = '';
   inputClosePin.blur();
 });
+
+//Function Notes - User requests loan
+//Any deposit > 35% of request?
+//If so, add positive value to movements,
+//if not, alert user
+//If loan amount is less than or equal to 0 OR value is null, send alert
+
+btnLoan.addEventListener('click', e => {
+  e.preventDefault();
+  let loanAmount = Number(inputLoanAmount.value);
+  if (loanAmount === null || loanAmount <= 0)
+    alert(`Please enter valid amount.`);
+  else if (currentAccount.movements.some(mov => mov >= loanAmount * 0.25)) {
+    currentAccount.movements.push(loanAmount);
+    updateUI(currentAccount);
+    inputLoanAmount.value = ``;
+    inputLoanAmount.blur();
+  } else {
+    alert(
+      `For this loan to be approved, a deposit of at least $${
+        loanAmount * 0.25
+      } (25% of loan request) must be deposited`
+    );
+    inputLoanAmount.value = ``;
+    inputLoanAmount.blur();
+  }
+});
