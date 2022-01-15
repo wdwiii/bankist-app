@@ -57,16 +57,23 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+//Initialize state for currentAcount's displayed movements
+let sorted = false;
+
 //Function Notes - displayMovements
 //** Function will expect an array of number values as a parameter
+//** Second parameter (sort) will be use to set state of the movements array. If set to true, movements will be displaying from highest to lowest
 //1. Clear out inner html of the movements container
 //2. Loop through movements array
 //3. Declare variable that displays 'withdrawal' or 'deposit' based on if movement is > or < 0.
 //4. Declare variable that stores html markup that will be rendered in string format
 //5. Use the .insertAdjacentHTML() method and pass the html variable. HTML will be positioned 'afterbegin' so last element in array is rendered at the top of the movements container
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
+  const sortedMovements = sort
+    ? movements.slice().sort((a, b) => a - b)
+    : movements;
   containerMovements.innerHTML = '';
-  movements.forEach(function (movement, i) {
+  sortedMovements.forEach(function (movement, i) {
     const transactionType = movement < 0 ? 'withdrawal' : 'deposit';
     const html = `
       <div class="movements__row">
@@ -167,6 +174,7 @@ btnLogin.addEventListener('click', function (e) {
       .split(' ')
       .at(0)}`;
 
+    sorted = false;
     updateUI(currentAccount);
 
     //Clear Login Credientials
@@ -277,4 +285,11 @@ btnLoan.addEventListener('click', e => {
     inputLoanAmount.value = ``;
     inputLoanAmount.blur();
   }
+});
+
+//Sorted state defaults to false on user login
+btnSort.addEventListener('click', e => {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
