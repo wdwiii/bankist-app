@@ -166,7 +166,7 @@ btnLogin.addEventListener('click', function (e) {
     acc => acc.userName === inputLoginUsername.value
   );
   //Optional chaining can be used to prevent error message if non-existent username is entere
-  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+  if (currentAccount?.pin === +inputLoginPin.value) {
     //Order of events
     //Disply UI & Welcome Message
     containerApp.style.opacity = '100';
@@ -193,7 +193,7 @@ btnLogin.addEventListener('click', function (e) {
 let recepientAccount;
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
-  let transferAmount = Number(inputTransferAmount.value);
+  let transferAmount = +inputTransferAmount.value;
   //currentAccount = account1;
   recepientAccount = accounts.find(
     acct => acct.userName === inputTransferTo.value
@@ -232,7 +232,7 @@ btnClose.addEventListener('click', e => {
   e.preventDefault();
   if (
     inputCloseUsername.value === currentAccount.userName &&
-    Number(inputClosePin.value) === currentAccount.pin
+    +inputClosePin.value === currentAccount.pin
   ) {
     const confirmDelete = prompt(
       'Are you sure you would like to delete this account? This action cannot be undone. Yes or No?'
@@ -268,7 +268,7 @@ btnClose.addEventListener('click', e => {
 
 btnLoan.addEventListener('click', e => {
   e.preventDefault();
-  let loanAmount = Number(inputLoanAmount.value);
+  let loanAmount = +inputLoanAmount.value;
   if (loanAmount === null || loanAmount <= 0)
     alert(`Please enter valid amount.`);
   else if (currentAccount.movements.some(mov => mov >= loanAmount * 0.25)) {
