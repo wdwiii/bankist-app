@@ -82,7 +82,7 @@ const displayMovements = function (movements, sort = false) {
     } ${transactionType}</div>
         <div class="movements__value">${movement < 0 ? '- ' : ''}$${Math.abs(
       movement
-    )}</div>
+    ).toFixed(2)}</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -122,7 +122,7 @@ const displayBalance = account => {
     (balance, movement) => balance + movement,
     0
   );
-  labelBalance.textContent = `$${currentBalance}`;
+  labelBalance.textContent = `$${currentBalance.toFixed(2)}`;
   account.balance = currentBalance;
 };
 
@@ -140,9 +140,9 @@ const displaySummary = account => {
     .map(deposit => deposit * (account.interestRate / 100))
     .filter(deposits => deposits > +1);
   const calcSum = movements => movements.reduce((tot, mov) => tot + mov, 0);
-  labelSumIn.textContent = `$${calcSum(deposits)}`;
-  labelSumOut.textContent = `$${Math.abs(calcSum(withdrawals))}`;
-  labelSumInterest.textContent = `$${calcSum(interest)}`;
+  labelSumIn.textContent = `$${calcSum(deposits).toFixed(2)}`;
+  labelSumOut.textContent = `$${Math.abs(calcSum(withdrawals)).toFixed(2)}`;
+  labelSumInterest.textContent = `$${calcSum(interest).toFixed(3)}`;
 };
 
 //Chaining a lot of methods together can cause performnce issues if working with large arrays
@@ -268,7 +268,7 @@ btnClose.addEventListener('click', e => {
 
 btnLoan.addEventListener('click', e => {
   e.preventDefault();
-  let loanAmount = +inputLoanAmount.value;
+  let loanAmount = Math.floor(inputLoanAmount.value);
   if (loanAmount === null || loanAmount <= 0)
     alert(`Please enter valid amount.`);
   else if (currentAccount.movements.some(mov => mov >= loanAmount * 0.25)) {
