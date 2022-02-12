@@ -71,9 +71,6 @@ const account4 = {
     '2020-01-28T09:15:04.904Z',
     '2020-04-01T10:17:24.185Z',
     '2020-05-08T14:11:59.604Z',
-    '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -118,18 +115,26 @@ let sorted = false;
 //3. Declare variable that displays 'withdrawal' or 'deposit' based on if movement is > or < 0.
 //4. Declare variable that stores html markup that will be rendered in string format
 //5. Use the .insertAdjacentHTML() method and pass the html variable. HTML will be positioned 'afterbegin' so last element in array is rendered at the top of the movements container
-const displayMovements = function (movements, sort = false) {
+const displayMovements = function (account, sort = false) {
   const sortedMovements = sort
-    ? movements.slice().sort((a, b) => a - b)
-    : movements;
+    ? account.movements.slice().sort((a, b) => a - b)
+    : account.movements;
   containerMovements.innerHTML = '';
   sortedMovements.forEach(function (movement, i) {
     const transactionType = movement < 0 ? 'withdrawal' : 'deposit';
+    const transactionDate = new Date(account.movementsDates[i]);
+    const day = `${transactionDate.getDate()}`.padStart(2, 0);
+    const month = `${transactionDate.getMonth() + 1}`.padStart(2, 0);
+    const year = transactionDate.getFullYear();
+
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${transactionType}">${
       i + 1
     } ${transactionType}</div>
+        <div class="movements__date">
+        ${month}/${day}/${year}
+        </div>
         <div class="movements__value">${movement < 0 ? '- ' : ''}$${Math.abs(
       movement
     ).toFixed(2)}</div>
@@ -195,16 +200,35 @@ const displaySummary = account => {
   labelSumInterest.textContent = `$${calcSum(interest).toFixed(3)}`;
 };
 
+const displayDate = () => {
+  const now = new Date();
+  const day = `${now.getDate()}`.padStart(2, 0);
+  const month = `${now.getMonth() + 1}`.padStart(2, 0);
+  const year = now.getFullYear();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  labelDate.textContent = `${month}/${day}/${year}, ${
+    hours === 0 ? 12 : hours
+  }:${minutes} ${hours >= 12 ? 'PM' : 'AM'}`;
+  //month/day/year
+};
+
 //Chaining a lot of methods together can cause performnce issues if working with large arrays
 //It is a bad practice to chain methods that mutate the original array. For example, the splice or reverse method.
 const updateUI = account => {
   displaySummary(account);
   displayBalance(account);
-  displayMovements(account.movements);
+  displayMovements(account);
+  displayDate();
 };
 
 //The currentAmount variable needs to be declared in the global scope so it can be accessed inside of other functions
 let currentAccount;
+
+//Simulate always logged in
+currentAccount = account1;
+updateUI(account1);
+containerApp.style.opacity = '100';
 
 //EVENT LISTENERS
 
@@ -261,6 +285,8 @@ btnTransfer.addEventListener('click', function (e) {
   ) {
     currentAccount.movements.push(-transferAmount);
     recepientAccount.movements.push(transferAmount);
+    currentAccount.movementsDates.push(new Date().toISOString());
+    recepientAccount.movementsDates.push(new Date().toISOString());
     updateUI(currentAccount);
     inputTransferTo.value = inputTransferAmount.value = ``;
     inputTransferAmount.blur();
@@ -323,6 +349,7 @@ btnLoan.addEventListener('click', e => {
     alert(`Please enter valid amount.`);
   else if (currentAccount.movements.some(mov => mov >= loanAmount * 0.25)) {
     currentAccount.movements.push(loanAmount);
+    currentAccount.movementsDates.push(new Date().toISOString()); //Add loan date
     updateUI(currentAccount);
     inputLoanAmount.value = ``;
     inputLoanAmount.blur();
