@@ -8,14 +8,14 @@ const account1 = {
   pin: 1111,
 
   movementsDates: [
-    '2019-11-18T21:31:17.178Z',
-    '2019-12-23T07:42:02.383Z',
-    '2020-01-28T09:15:04.904Z',
-    '2020-04-01T10:17:24.185Z',
-    '2020-05-08T14:11:59.604Z',
-    '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2021-09-23T07:42:02.383Z',
+    '2021-10-11T23:36:17.929Z',
+    '2021-11-27T17:01:17.194Z',
+    '2021-12-08T14:11:59.604Z',
+    '2021-12-18T21:31:17.178Z',
+    '2022-02-06T09:15:04.904Z',
+    '2022-02-08T10:17:24.185Z',
+    '2022-02-12T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -23,19 +23,17 @@ const account1 = {
 
 const account2 = {
   owner: 'Luna Wibsey',
-  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  movements: [5000, 3400, -150, -790, -3210, -1000],
   interestRate: 1.5,
   pin: 2222,
 
   movementsDates: [
-    '2019-11-01T13:15:33.035Z',
-    '2019-11-30T09:48:16.867Z',
-    '2019-12-25T06:04:23.907Z',
-    '2020-01-25T14:18:46.235Z',
-    '2020-02-05T16:33:06.386Z',
-    '2020-04-10T14:43:26.374Z',
-    '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
+    '2021-11-27T17:01:17.194Z',
+    '2021-12-17T14:11:59.604Z',
+    '2021-12-25T21:31:17.178Z',
+    '2022-01-16T10:17:24.185Z',
+    '2022-02-09T09:15:04.904Z',
+    '2022-02-11T10:51:36.790Z',
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -46,15 +44,15 @@ const account3 = {
   movements: [200, -200, 340, -300, -20, 50, 400, -460],
   interestRate: 0.7,
   pin: 3333,
-  ovementsDates: [
-    '2019-11-01T13:15:33.035Z',
-    '2019-11-30T09:48:16.867Z',
-    '2019-12-25T06:04:23.907Z',
-    '2020-01-25T14:18:46.235Z',
-    '2020-02-05T16:33:06.386Z',
-    '2020-04-10T14:43:26.374Z',
-    '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
+  movementsDates: [
+    '2021-09-23T07:42:02.383Z',
+    '2021-10-11T23:36:17.929Z',
+    '2021-11-27T17:01:17.194Z',
+    '2021-12-08T14:11:59.604Z',
+    '2021-12-18T21:31:17.178Z',
+    '2022-02-11T10:17:24.185Z',
+    '2022-02-12T09:15:04.904Z',
+    '2022-02-13T10:51:36.790Z',
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -66,11 +64,11 @@ const account4 = {
   interestRate: 1,
   pin: 4444,
   movementsDates: [
-    '2019-11-18T21:31:17.178Z',
-    '2019-12-23T07:42:02.383Z',
-    '2020-01-28T09:15:04.904Z',
-    '2020-04-01T10:17:24.185Z',
-    '2020-05-08T14:11:59.604Z',
+    '2021-11-18T21:31:17.178Z',
+    '2021-12-23T07:42:02.383Z',
+    '2022-01-28T09:15:04.904Z',
+    '2022-04-01T10:17:24.185Z',
+    '2022-05-08T14:11:59.604Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -107,6 +105,29 @@ const inputClosePin = document.querySelector('.form__input--pin');
 //Initialize state for currentAcount's displayed movements
 let sorted = false;
 
+const formatDate = date => {
+  const day = `${date.getDate()}`.padStart(2, 0);
+  const month = `${date.getMonth() + 1}`.padStart(2, 0);
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  // labelDate.textContent = `${month}/${day}/${year}, ${
+  //   hours === 0 ? 12 : hours
+  // }:${minutes} ${hours >= 12 ? 'PM' : 'AM'}`;
+  return `${month}/${day}/${year}`;
+  //will format date as mm/dd/yyyy
+};
+
+//Function notes
+//1. Function takes two date parmmeters
+//2. Date objesct will be converted to a  number
+//3. Subtract the start from the end
+//4. Reduce the difference from number of milliseconds to number of days
+const checkDaysPassed = (date1, date2) => {
+  const timeDifference = +date1 - +date2;
+  return Math.abs(timeDifference) / 1000 / 60 / 60 / 24;
+};
+
 //Function Notes - displayMovements
 //** Function will expect an array of number values as a parameter
 //** Second parameter (sort) will be use to set state of the movements array. If set to true, movements will be displaying from highest to lowest
@@ -116,24 +137,35 @@ let sorted = false;
 //4. Declare variable that stores html markup that will be rendered in string format
 //5. Use the .insertAdjacentHTML() method and pass the html variable. HTML will be positioned 'afterbegin' so last element in array is rendered at the top of the movements container
 const displayMovements = function (account, sort = false) {
-  const sortedMovements = sort
+  const movements = sort
     ? account.movements.slice().sort((a, b) => a - b)
     : account.movements;
   containerMovements.innerHTML = '';
-  sortedMovements.forEach(function (movement, i) {
+  movements.forEach(function (movement, i) {
     const transactionType = movement < 0 ? 'withdrawal' : 'deposit';
     const transactionDate = new Date(account.movementsDates[i]);
-    const day = `${transactionDate.getDate()}`.padStart(2, 0);
-    const month = `${transactionDate.getMonth() + 1}`.padStart(2, 0);
-    const year = transactionDate.getFullYear();
+    const formattedDate = Math.round(
+      checkDaysPassed(new Date(), transactionDate)
+    );
+    const daysAgoStr =
+      formattedDate === 0
+        ? 'today'
+        : formattedDate === 1
+        ? 'yesterday'
+        : formattedDate === 7
+        ? '1 week ago'
+        : formattedDate > 7
+        ? formatDate(transactionDate)
+        : `${formattedDate} days ago`;
 
+    //formatDate(transactionDate)
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${transactionType}">${
       i + 1
     } ${transactionType}</div>
         <div class="movements__date">
-        ${month}/${day}/${year}
+        ${daysAgoStr}
         </div>
         <div class="movements__value">${movement < 0 ? '- ' : ''}$${Math.abs(
       movement
@@ -173,6 +205,9 @@ createUserNames(accounts);
 //2. Use query selector to targe .balance__value
 //3. Set .balance__value textContent to the reduced value
 const displayBalance = account => {
+  const now = new Date();
+  labelDate.textContent = formatDate(now);
+
   const currentBalance = account.movements.reduce(
     (balance, movement) => balance + movement,
     0
@@ -200,26 +235,12 @@ const displaySummary = account => {
   labelSumInterest.textContent = `$${calcSum(interest).toFixed(3)}`;
 };
 
-const displayDate = () => {
-  const now = new Date();
-  const day = `${now.getDate()}`.padStart(2, 0);
-  const month = `${now.getMonth() + 1}`.padStart(2, 0);
-  const year = now.getFullYear();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  labelDate.textContent = `${month}/${day}/${year}, ${
-    hours === 0 ? 12 : hours
-  }:${minutes} ${hours >= 12 ? 'PM' : 'AM'}`;
-  //month/day/year
-};
-
 //Chaining a lot of methods together can cause performnce issues if working with large arrays
 //It is a bad practice to chain methods that mutate the original array. For example, the splice or reverse method.
 const updateUI = account => {
   displaySummary(account);
   displayBalance(account);
   displayMovements(account);
-  displayDate();
 };
 
 //The currentAmount variable needs to be declared in the global scope so it can be accessed inside of other functions
