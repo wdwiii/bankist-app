@@ -17,8 +17,8 @@ const account1 = {
     '2022-02-20T10:17:24.185Z',
     '2022-02-21T10:51:36.790Z',
   ],
-  currency: 'EUR',
-  locale: 'pt-PT', // de-DE
+  currency: 'UDS',
+  locale: 'en-US', // de-DE
 };
 
 const account2 = {
@@ -35,7 +35,7 @@ const account2 = {
     '2022-02-09T09:15:04.904Z',
     '2022-02-11T10:51:36.790Z',
   ],
-  currency: 'USD',
+  currency: 'CAD',
   locale: 'en-CA',
 };
 
@@ -54,8 +54,8 @@ const account3 = {
     '2022-02-12T09:15:04.904Z',
     '2022-02-13T10:51:36.790Z',
   ],
-  currency: 'USD',
-  locale: 'en-US',
+  currency: 'EUR',
+  locale: 'fr-FR',
 };
 
 const account4 = {
@@ -115,17 +115,18 @@ const formatDateLong = date => {
     month: 'long',
     year: 'numeric',
   };
-  const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+
+  const formattedDate = new Intl.DateTimeFormat(
+    currentAccount.locale,
+    options
+  ).format(date);
   return formattedDate;
 };
 
 const formatDateShort = date => {
-  const options = {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  };
-  const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+  const formattedDate = new Intl.DateTimeFormat(currentAccount.locale).format(
+    date
+  );
   return formattedDate;
 };
 
