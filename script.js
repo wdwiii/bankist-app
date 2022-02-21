@@ -12,10 +12,10 @@ const account1 = {
     '2021-10-11T23:36:17.929Z',
     '2021-11-27T17:01:17.194Z',
     '2021-12-08T14:11:59.604Z',
-    '2021-12-18T21:31:17.178Z',
-    '2022-02-06T09:15:04.904Z',
-    '2022-02-08T10:17:24.185Z',
-    '2022-02-12T10:51:36.790Z',
+    '2021-12-16T21:31:17.178Z',
+    '2022-02-18T09:15:04.904Z',
+    '2022-02-20T10:17:24.185Z',
+    '2022-02-21T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -36,7 +36,7 @@ const account2 = {
     '2022-02-11T10:51:36.790Z',
   ],
   currency: 'USD',
-  locale: 'en-US',
+  locale: 'en-CA',
 };
 
 const account3 = {
@@ -71,7 +71,7 @@ const account4 = {
     '2022-05-08T14:11:59.604Z',
   ],
   currency: 'EUR',
-  locale: 'pt-PT', // de-DE
+  locale: 'de-DE', // de-DE
 };
 
 const accounts = [account1, account2, account3, account4];
@@ -105,17 +105,28 @@ const inputClosePin = document.querySelector('.form__input--pin');
 //Initialize state for currentAcount's displayed movements
 let sorted = false;
 
-const formatDate = date => {
-  const day = `${date.getDate()}`.padStart(2, 0);
-  const month = `${date.getMonth() + 1}`.padStart(2, 0);
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  // labelDate.textContent = `${month}/${day}/${year}, ${
-  //   hours === 0 ? 12 : hours
-  // }:${minutes} ${hours >= 12 ? 'PM' : 'AM'}`;
-  return `${month}/${day}/${year}`;
-  //will format date as mm/dd/yyyy
+const formatDateLong = date => {
+  const options = {
+    second: 'numeric',
+    minute: 'numeric',
+    hour: 'numeric',
+    day: '2-digit',
+    week: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  };
+  const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+  return formattedDate;
+};
+
+const formatDateShort = date => {
+  const options = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  };
+  const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+  return formattedDate;
 };
 
 //Function notes
@@ -144,19 +155,17 @@ const displayMovements = function (account, sort = false) {
   movements.forEach(function (movement, i) {
     const transactionType = movement < 0 ? 'withdrawal' : 'deposit';
     const transactionDate = new Date(account.movementsDates[i]);
-    const formattedDate = Math.round(
-      checkDaysPassed(new Date(), transactionDate)
-    );
+    const daysPassed = Math.round(checkDaysPassed(new Date(), transactionDate));
     const daysAgoStr =
-      formattedDate === 0
+      daysPassed === 0
         ? 'today'
-        : formattedDate === 1
+        : daysPassed === 1
         ? 'yesterday'
-        : formattedDate === 7
+        : daysPassed === 7
         ? '1 week ago'
-        : formattedDate > 7
-        ? formatDate(transactionDate)
-        : `${formattedDate} days ago`;
+        : daysPassed > 7
+        ? formatDateShort(transactionDate)
+        : `${daysPassed} days ago`;
 
     //formatDate(transactionDate)
     const html = `
@@ -206,7 +215,7 @@ createUserNames(accounts);
 //3. Set .balance__value textContent to the reduced value
 const displayBalance = account => {
   const now = new Date();
-  labelDate.textContent = formatDate(now);
+  labelDate.textContent = formatDateLong(now);
 
   const currentBalance = account.movements.reduce(
     (balance, movement) => balance + movement,
@@ -232,7 +241,7 @@ const displaySummary = account => {
   const calcSum = movements => movements.reduce((tot, mov) => tot + mov, 0);
   labelSumIn.textContent = `$${calcSum(deposits).toFixed(2)}`;
   labelSumOut.textContent = `$${Math.abs(calcSum(withdrawals)).toFixed(2)}`;
-  labelSumInterest.textContent = `$${calcSum(interest).toFixed(3)}`;
+  labelSumInterest.textContent = `$${calcSum(interest).toFixed(2)}`;
 };
 
 //Chaining a lot of methods together can cause performnce issues if working with large arrays
@@ -246,7 +255,9 @@ const updateUI = account => {
 //The currentAmount variable needs to be declared in the global scope so it can be accessed inside of other functions
 let currentAccount;
 
+//==============================
 //Simulate always logged in
+//==============================
 currentAccount = account1;
 updateUI(account1);
 containerApp.style.opacity = '100';
