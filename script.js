@@ -17,7 +17,7 @@ const account1 = {
     '2022-02-20T10:17:24.185Z',
     '2022-02-21T10:51:36.790Z',
   ],
-  currency: 'UDS',
+  currency: 'USD',
   locale: 'en-US', // de-DE
 };
 
@@ -168,7 +168,6 @@ const displayMovements = function (account, sort = false) {
         ? formatDateShort(transactionDate)
         : `${daysPassed} days ago`;
 
-    //formatDate(transactionDate)
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${transactionType}">${
@@ -177,9 +176,7 @@ const displayMovements = function (account, sort = false) {
         <div class="movements__date">
         ${daysAgoStr}
         </div>
-        <div class="movements__value">${movement < 0 ? '- ' : ''}$${Math.abs(
-      movement
-    ).toFixed(2)}</div>
+        <div class="movements__value">${formatCurrency(movement)}</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -222,7 +219,8 @@ const displayBalance = account => {
     (balance, movement) => balance + movement,
     0
   );
-  labelBalance.textContent = `$${currentBalance.toFixed(2)}`;
+
+  labelBalance.textContent = formatCurrency(currentBalance);
   account.balance = currentBalance;
 };
 
@@ -240,9 +238,10 @@ const displaySummary = account => {
     .map(deposit => deposit * (account.interestRate / 100))
     .filter(deposits => deposits > +1);
   const calcSum = movements => movements.reduce((tot, mov) => tot + mov, 0);
-  labelSumIn.textContent = `$${calcSum(deposits).toFixed(2)}`;
-  labelSumOut.textContent = `$${Math.abs(calcSum(withdrawals)).toFixed(2)}`;
-  labelSumInterest.textContent = `$${calcSum(interest).toFixed(2)}`;
+  // labelSumIn.textContent = `$${calcSum(deposits).toFixed(2)}`;
+  labelSumIn.textContent = formatCurrency(calcSum(deposits));
+  labelSumOut.textContent = formatCurrency(Math.abs(calcSum(withdrawals)));
+  labelSumInterest.textContent = formatCurrency(calcSum(interest));
 };
 
 //Chaining a lot of methods together can cause performnce issues if working with large arrays
@@ -251,6 +250,21 @@ const updateUI = account => {
   displaySummary(account);
   displayBalance(account);
   displayMovements(account);
+};
+
+//Function Notes
+//1. Pass in a number as a parameter
+//2. Create options object that will include formating styles for number
+//3. Call Intl.NumberFormat function
+//4. Pass in currentAccount.locale and options as parameters
+//5. Chain format function, with num passed in as parameter
+const formatCurrency = num => {
+  const options = {
+    style: 'currency',
+    currency: currentAccount.currency,
+    currencyDisplay: 'symbol',
+  };
+  return new Intl.NumberFormat(currentAccount.locale, options).format(num);
 };
 
 //The currentAmount variable needs to be declared in the global scope so it can be accessed inside of other functions
