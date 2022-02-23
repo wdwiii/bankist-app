@@ -397,9 +397,15 @@ btnLoan.addEventListener('click', e => {
   else if (currentAccount.movements.some(mov => mov >= loanAmount * 0.25)) {
     currentAccount.movements.push(loanAmount);
     currentAccount.movementsDates.push(new Date().toISOString()); //Add loan date
-    updateUI(currentAccount);
+    //Include a setTimeout to simulate the processing of the loan
     inputLoanAmount.value = ``;
     inputLoanAmount.blur();
+    document.body.style.cursor = 'progress';
+    setTimeout(() => {
+      alert('Loan was approved');
+      updateUI(currentAccount);
+      document.body.style.cursor = 'auto';
+    }, 3000);
   } else {
     alert(
       `For this loan to be approved, a deposit of at least $${
