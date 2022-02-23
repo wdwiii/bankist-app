@@ -105,6 +105,16 @@ const inputClosePin = document.querySelector('.form__input--pin');
 //Initialize state for currentAcount's displayed movements
 let sorted = false;
 
+//The currentAmount variable needs to be declared in the global scope so it can be accessed inside of other functions
+let currentAccount;
+
+//The timer variable needs to be declared in the global scope so it exist between different logins and callback functions
+let timer;
+
+//=========
+//Functions
+//=========
+
 const formatDateLong = date => {
   const options = {
     second: 'numeric',
@@ -267,15 +277,48 @@ const formatCurrency = num => {
   return new Intl.NumberFormat(currentAccount.locale, options).format(num);
 };
 
-//The currentAmount variable needs to be declared in the global scope so it can be accessed inside of other functions
-let currentAccount;
+//Function Notes
+//Set the time to 5 minutes
+//Call the timer every second
+//Print the remaining time to UI
+//Logout timer reaches 0, logout currentAccount
+const startLogoutTimer = function () {
+  //setTimeout/setInterval only invokes the function after the specified time
+  //to call the function immediately, store callback into its own variable, then call it before the setTimeout/setInterval
+  const ticker = () => {
+    //Convert minute and second to string to apply the padStart method
+    let minute = (time / 60).toString().padStart(2, 0);
+    let second = (time % 60).toString().padStart(2, 0);
+    labelTimer.textContent = `${Math.trunc(minute)}:${second}`;
+
+    if (time === 0) {
+      clearInterval(remainingTime);
+      containerApp.style.opacity = '0';
+      labelWelcome.textContent = 'Log in to get started';
+    }
+
+    time--;
+  };
+
+  let time = 300;
+  ticker();
+  const timer = setInterval(ticker, 1000);
+  return timer;
+};
+
+//Check if a timer already exist, if stop timer
+const resetTimer = () => {
+  if (timer) clearInterval(timer);
+  //Start/Restart Logout Timer
+  timer = startLogoutTimer();
+};
 
 //==============================
 //Simulate always logged in
 //==============================
-currentAccount = account1;
-updateUI(account1);
-containerApp.style.opacity = '100';
+// currentAccount = account1;
+// updateUI(account1);
+// containerApp.style.opacity = '100';
 
 //EVENT LISTENERS
 
@@ -303,7 +346,7 @@ btnLogin.addEventListener('click', function (e) {
     //Because the assignment operator works from right to left, we can reset the value ot both input fields in one line
     inputLoginPin.blur(); //The blur method removes focus from the input field
 
-    //Start/Restart Lougout Timer
+    resetTimer();
   }
 });
 
@@ -315,7 +358,6 @@ let recepientAccount;
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
   let transferAmount = +inputTransferAmount.value;
-  //currentAccount = account1;
   recepientAccount = accounts.find(
     acct => acct.userName === inputTransferTo.value
   );
@@ -340,6 +382,7 @@ btnTransfer.addEventListener('click', function (e) {
   } else {
     alert(`The transfer is invalid and cannot be completed`);
   }
+  resetTimer();
 });
 
 //Run Tests to close account
@@ -381,6 +424,7 @@ btnClose.addEventListener('click', e => {
   } else alert(`Invalid username and/or pin.`);
   inputCloseUsername.value = inputClosePin.value = '';
   inputClosePin.blur();
+  resetTimer();
 });
 
 //Function Notes - User requests loan
@@ -415,11 +459,13 @@ btnLoan.addEventListener('click', e => {
     inputLoanAmount.value = ``;
     inputLoanAmount.blur();
   }
+  resetTimer();
 });
 
 //Sorted state defaults to false on user login
 btnSort.addEventListener('click', e => {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
+  resetTimer();
 });
